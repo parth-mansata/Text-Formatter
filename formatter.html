@@ -1,195 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text Formatter</title>
-    <style>
-        body {
-/*            font-family: Arial, sans-serif;*/
-                  font-family: "Arial Unicode MS", sans-serif;  /* For better support of Unicode mathematical characters */
-
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: left;
-        }
-        .container {
-            width: 80%;
-            max-width: 800px;
-            text-align: left;
-        }
-        .input-area, .output-area {
-            width: 100%;
-            min-height: 150px;
-            padding: 20px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            background-color: white;
-                  font-family: "Arial Unicode MS", sans-serif;  /* For better support of Unicode mathematical characters */
-            font-size: 16px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            text-align: left;
-            margin-bottom: 20px;
-        }
-        .input-area {
-            background-color: #e9f7fd;
-            min-height: 200px;
-        }
-        .output-area {
-            background-color: #fff4e6;
-            margin-top: 20px;
-            border: 2px solid #ff9b00;
-            min-height: 150px;
-        }
-        .button {
-            padding: 10px 20px;
-            margin-top: 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .button:hover {
-            background-color: #45a049;
-        }
-        .tab {
-            display: inline-block;
-            width: 2em;
-        }
-        .bullet-list {
-            list-style-type: none;
-            padding-left: 20px;
-        }
-        .bullet-list li {
-            position: relative;
-            padding-left: 1.5em;
-        }
-        .bullet-list li::before {
-            content: '•';
-            position: absolute;
-            left: 0;
-            top: 0;
-        }
-        .nested-list {
-            list-style-type: none;
-            padding-left: 30px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Text Formatter</h1>
-        <div id="inputText" contenteditable="true" class="input-area" placeholder="Paste your text here (supports bold, bullets, etc.)"></div>
-        <button class="button" onclick="formatText()">Format Text</button>
-        <div id="outputText" class="output-area"></div>
-    </div>
-
-    <script>
-        
-        const convertBoldInText = (text) => {
-  // Regex to find bold words (either Markdown or HTML)
-  const boldPattern = /(\*\*([^\*]+)\*\*|<strong>([^<]+)<\/strong>)/g;
-
-  return text.replace(boldPattern, (match, p1, p2, p3) => {
-    // Extract bold word from either Markdown or HTML format
-    const boldWord = p2 || p3;
-    return convertToUnicodeBold(boldWord);
-  });
-};
-
-function formatText() {
-    let inputText = document.getElementById('inputText').innerHTML;
-    console.log(inputText)
-    inputText = convertBoldInText(inputText);
-    console.log(inputText)
-    inputText = inputText.replace(/<\/strong>/g, '').replace(/<p>/g, '').replace(/<strong>/g, '')
-    console.log(inputText)
-    // Handle Bullet Points (convert list items to bullets and preserve nested indentation)
-    let nestedListDepth = 0;
-    let result = '';
-    let i = 0;
-    const pEndString = "</p>"
-    const brString = "<br>"
-    const ulString = "<ul>"
-    const liString = "<li>"
-    const ulEndString = "</ul>"
-    const liEndString = "</li>"
-    while (i < inputText.length) {
-        // Check if the substring from current index matches startStr
-        if (inputText.substring(i, i + pEndString.length) === pEndString || inputText.substring(i, i + brString.length) === brString) {
-            i+= pEndString.length
-            result += '\n'
-            // continue;
-        } else if (inputText.substring(i, i + ulString.length) === ulString) {
-            i+= ulString.length
-            // result += inputText[i]
-            nestedListDepth++;
-            // continue;
-        } else if (inputText.substring(i, i + liString.length) === liString) {
-            i+= liString.length;
-            // let endIdx = inputText.indexOf("</li>", i);
-            result += '\t'.repeat(nestedListDepth) + '• ';
-            // continue;
-        } else if (inputText.substring(i, i + liEndString.length) === liEndString) {
-            i+= liEndString.length
-            // let endIdx = inputText.indexOf("</li>", i);
-            result += '\n';
-            // continue;
-        } else if (inputText.substring(i, i + ulEndString.length) === ulEndString) {
-            i+= ulEndString.length
-            // let endIdx = inputText.indexOf("</li>", i);
-            nestedListDepth--;
-            // continue;
-        } else {
-            // Append the current character to the result
-            result += inputText[i];
-            i++;
-        }
-    }
-    console.log(result)
-    inputText = result
-    
-    // inputText = inputText.replace(/<ul>/g, '<ul class="bullet-list">')
-    //                      .replace(/<\/ul>/g, '</ul>')
-    //                      .replace(/<li>/g, function() {
-    //                          let indent = '\t'.repeat(nestedListDepth); // Add tab for nested items
-    //                          nestedListDepth++;
-    //                          return indent + '• ';
-    //                      })
-    //                      .replace(/<\/li>/g, function() {
-    //                          nestedListDepth--;
-    //                          return '\n';
-    //                      });
-
-    // // Handle Markdown-style bold (**bold**) and convert to Unicode Latin bold characters
-    // inputText = inputText.replace(/\*\*(.*?)\*\*/g, (match, p1) => convertToUnicodeBold(p1));
-
-    // Output formatted text to the output area
-    document.getElementById('outputText').innerHTML = inputText;
-}
-
-        // Function to convert normal text to bold Unicode characters
-        function convertToUnicodeBold(text) {
-            const latinBoldMap = {
-                'a': '𝗮', 'b': '𝗯', 'c': '𝗰', 'd': '𝗱', 'e': '𝗲', 'f': '𝗳', 'g': '𝗴', 'h': '𝗵', 'i': '𝗶', 'j': '𝗷', 'k': '𝗸',
-                'l': '𝗹', 'm': '𝗺', 'n': '𝗻', 'o': '𝗼', 'p': '𝗽', 'q': '𝗾', 'r': '𝗿', 's': '𝘀', 't': '𝘁', 'u': '𝘂', 'v': '𝘃',
-                'w': '𝘄', 'x': '𝘅', 'y': '𝘆', 'z': '𝘇',
-                'A': '𝗔', 'B': '𝗕', 'C': '𝗖', 'D': '𝗗', 'E': '𝗘', 'F': '𝗙', 'G': '𝗚', 'H': '𝗛', 'I': '𝗜', 'J': '𝗝', 'K': '𝗞',
-                'L': '𝗟', 'M': '𝗠', 'N': '𝗡', 'O': '𝗢', 'P': '𝗣', 'Q': '𝗤', 'R': '𝗥', 'S': '𝗦', 'T': '𝗧', 'U': '𝗨', 'V': '𝗩',
-                'W': '𝗪', 'X': '𝗫', 'Y': '𝗬', 'Z': '𝗭',
-                '0': '𝟎', '1': '𝟏', '2': '𝟐', '3': '𝟑', '4': '𝟒', '5': '𝟓', '6': '𝟔', '7': '𝟕', '8': '𝟖', '9': '𝟗'
-            };
-
-            // Convert each character to bold equivalent
-            return text.split('').map(char => latinBoldMap[char] || char).join('');
-        }
-    </script>
-</body>
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Text Formatter</title>
+      <style>
+         body {
+         font-family: Arial, sans-serif;
+         margin: 0;
+         padding: 0;
+         background-color: #f4f4f9;
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         height: 100vh;
+         text-align: left;
+         }
+         .container {
+         width: 80%;
+         max-width: 800px;
+         text-align: left;
+         }
+         .input-area, .output-area {
+         width: 100%;
+         min-height: 150px;
+         padding: 20px;
+         border-radius: 5px;
+         border: 1px solid #ccc;
+         background-color: white;
+         font-family: Arial, sans-serif;
+         font-size: 16px;
+         white-space: pre-wrap;
+         word-wrap: break-word;
+         text-align: left;
+         margin-bottom: 20px;
+         }
+         .input-area {
+         background-color: #e9f7fd;
+         min-height: 200px;
+         }
+         .output-area {
+         background-color: #fff4e6;
+         margin-top: 20px;
+         border: 2px solid #ff9b00;
+         min-height: 150px;
+         }
+         .button {
+         padding: 10px 20px;
+         margin-top: 20px;
+         background-color: #4CAF50;
+         color: white;
+         border: none;
+         border-radius: 5px;
+         cursor: pointer;
+         }
+         .button:hover {
+         background-color: #45a049;
+         }
+         #format-button {
+         background-color: #007BFF;
+         }
+         #format-button:hover {
+         background-color: #0056b3;
+         }
+         .tab {
+         display: inline-block;
+         width: 2em;
+         }
+         .bullet-list {
+         list-style-type: none;
+         padding-left: 20px;
+         }
+         .bullet-list li {
+         position: relative;
+         padding-left: 1.5em;
+         }
+         .bullet-list li::before {
+         content: '•';
+         position: absolute;
+         left: 0;
+         top: 0;
+         }
+         .nested-list {
+         list-style-type: none;
+         padding-left: 30px;
+         }
+      </style>
+   </head>
+   <body>
+      <div class="container">
+         <h1>Text Formatter</h1>
+         <div id="inputText" contenteditable="true" class="input-area" placeholder="Paste your text here (supports bold, bullets, etc.)"></div>
+         <div style="display: flex; justify-content: space-between;">
+            <button class="button" id="format-button" onclick="formatText()">Format Text</button>
+            <button class="button" id="copy-button" onclick="copyToClipBoard()">Copy</button>
+         </div>
+         <div id="outputText" class="output-area"></div>
+      </div>
+      <script>
+         const convertBoldInText = (text) => {
+         // Regex to find bold words (either Markdown or HTML)
+         const boldPattern = /(\*\*([^\*]+)\*\*|<strong>([^<]+)<\/strong>)/g;
+         
+         return text.replace(boldPattern, (match, p1, p2, p3) => {
+         // Extract bold word from either Markdown or HTML format
+         const boldWord = p2 || p3;
+         return convertToUnicodeBold(boldWord);
+         });
+         };
+         
+         function formatText() {
+         let inputText = document.getElementById('inputText').innerHTML;
+         console.log(inputText)
+         inputText = convertBoldInText(inputText);
+         console.log(inputText)
+         inputText = inputText.replace(/<\/strong>/g, '').replace(/<p>/g, '').replace(/<strong>/g, '')
+         console.log(inputText)
+         // Handle Bullet Points (convert list items to bullets and preserve nested indentation)
+         let nestedListDepth = 0;
+         let result = '';
+         let i = 0;
+         const pEndString = "</p>"
+         const brString = "<br>"
+         const ulString = "<ul>"
+         const liString = "<li>"
+         const ulEndString = "</ul>"
+         const liEndString = "</li>"
+         while (i < inputText.length) {
+         if (inputText.substring(i, i + pEndString.length) === pEndString || inputText.substring(i, i + brString.length) === brString) {
+             i+= pEndString.length
+             result += '\n'
+         } else if (inputText.substring(i, i + ulString.length) === ulString) {
+             i+= ulString.length
+             nestedListDepth++;
+         } else if (inputText.substring(i, i + liString.length) === liString) {
+             i+= liString.length;
+             result += '\t'.repeat(nestedListDepth) + '• ';
+         } else if (inputText.substring(i, i + liEndString.length) === liEndString) {
+             i+= liEndString.length
+             // let endIdx = inputText.indexOf("</li>", i);
+             result += '\n';
+         } else if (inputText.substring(i, i + ulEndString.length) === ulEndString) {
+             i+= ulEndString.length
+             nestedListDepth--;
+         } else {
+             result += inputText[i];
+             i++;
+         }
+         }
+         console.log(result)
+         inputText = result
+         
+         // Output formatted text to the output area
+         document.getElementById('outputText').innerHTML = inputText;
+         }
+         
+         // Function to convert normal text to bold Unicode characters
+         function convertToUnicodeBold(text) {
+             const latinBoldMap = {
+                 'a': '𝗮', 'b': '𝗯', 'c': '𝗰', 'd': '𝗱', 'e': '𝗲', 'f': '𝗳', 'g': '𝗴', 'h': '𝗵', 'i': '𝗶', 'j': '𝗷', 'k': '𝗸',
+                 'l': '𝗹', 'm': '𝗺', 'n': '𝗻', 'o': '𝗼', 'p': '𝗽', 'q': '𝗾', 'r': '𝗿', 's': '𝘀', 't': '𝘁', 'u': '𝘂', 'v': '𝘃',
+                 'w': '𝘄', 'x': '𝘅', 'y': '𝘆', 'z': '𝘇',
+                 'A': '𝗔', 'B': '𝗕', 'C': '𝗖', 'D': '𝗗', 'E': '𝗘', 'F': '𝗙', 'G': '𝗚', 'H': '𝗛', 'I': '𝗜', 'J': '𝗝', 'K': '𝗞',
+                 'L': '𝗟', 'M': '𝗠', 'N': '𝗡', 'O': '𝗢', 'P': '𝗣', 'Q': '𝗤', 'R': '𝗥', 'S': '𝗦', 'T': '𝗧', 'U': '𝗨', 'V': '𝗩',
+                 'W': '𝗪', 'X': '𝗫', 'Y': '𝗬', 'Z': '𝗭',
+                 '0': '𝟎', '1': '𝟏', '2': '𝟐', '3': '𝟑', '4': '𝟒', '5': '𝟓', '6': '𝟔', '7': '𝟕', '8': '𝟖', '9': '𝟗'
+             };
+         
+             // Convert each character to bold equivalent
+             return text.split('').map(char => latinBoldMap[char] || char).join('');
+         }
+         // Function to convert normal text to bold Unicode characters
+         async function copyToClipBoard() {
+         
+         const divContent = document.getElementById("outputText").innerHTML;
+         
+         try {
+         await navigator.clipboard.writeText(divContent);
+             document.getElementById('copy-button').innerHTML = 'Copied!'
+             setTimeout(()=> {
+                 document.getElementById('copy-button').innerHTML = 'Copy'
+             
+             }, 1500)
+         } catch (err) {
+         console.error("Failed to copy: ", err);
+         }
+                 }
+      </script>
+   </body>
 </html>
