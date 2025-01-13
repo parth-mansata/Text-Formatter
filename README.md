@@ -19,7 +19,7 @@ Text-Formatter is a powerful tool designed to process HTML content and generate 
   - Ideal for use on platforms with limited text formatting capabilities, enabling users to create well-structured and aesthetically pleasing content.
 
 ## Example Input & Output
-![Example Screenshot](assets/formatter-example)
+![Example Screenshot](assets/formatter-example.png)
 
 𝐈𝐦𝐩𝐨𝐫𝐭𝐚𝐧𝐭 𝐍𝐨𝐭𝐞: Always ensure system security.
 ```
