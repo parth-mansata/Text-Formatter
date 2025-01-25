@@ -13,7 +13,7 @@
          display: flex;
          justify-content: center;
          align-items: center;
-         height: 100vh;
+         min-height: 100vh;
          text-align: left;
          }
          .container {
@@ -173,7 +173,7 @@
          // Function to convert normal text to bold Unicode characters
          async function copyToClipBoard() {
          
-         const divContent = document.getElementById("outputText").innerHTML;
+         const divContent = document.getElementById("outputText").innerText;
          
          try {
          await navigator.clipboard.writeText(divContent);
